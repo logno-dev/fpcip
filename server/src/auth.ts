@@ -13,7 +13,7 @@ const secret: string = Bun.env.MY_SECRET || "bad secret";
 const users = [
   {
     username: "logno",
-    password: "thesameasyours",
+    password: Bun.env.ADMIN_PASSWORD,
   },
 ];
 
