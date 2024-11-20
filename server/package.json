@@ -1,0 +1,15 @@
+{
+  "name": "server",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "hono": "^4.6.10",
+    "sha.js": "^2.4.11",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
