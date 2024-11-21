@@ -1,0 +1,8 @@
+services:
+  fp-client:
+    environment:
+      - VITE_DB_URI=${VITE_DB_URI}
+      - VITE_DB_TOKEN=${VITE_DB_TOKEN}
+    build: .
+    ports:
+      - "8080:8080"
