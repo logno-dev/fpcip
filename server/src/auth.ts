@@ -8,12 +8,12 @@ type Session = {
   user: string | null;
 };
 
-const secret: string = Bun.env.MY_SECRET || "bad secret";
+const secret: string = process.env.MY_SECRET || "bad secret";
 
 const users = [
   {
-    username: "logno",
-    password: Bun.env.ADMIN_PASSWORD,
+    username: process.env.ADMIN_USER,
+    password: process.env.ADMIN_PASSWORD,
   },
 ];
 
@@ -76,7 +76,7 @@ export const checkCookie = async (c: Context) => {
       if (db) db.close();
     }
   }
-  if (session.user !== null) {
+  if (session && session.user !== null) {
     return c.json({ isAuthenticated: true, user: session.user });
   } else {
     return c.json({ isAuthenticated: false, user: null });

@@ -1,0 +1,6 @@
+services:
+  fp-server:
+    environment:
+      - MY_SECRET=${MY_SECRET}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
