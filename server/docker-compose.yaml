@@ -4,3 +4,6 @@ services:
       - MY_SECRET=${MY_SECRET}
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    build: .
+    ports:
+      - "3000:3000"
