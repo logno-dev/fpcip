@@ -1,5 +1,5 @@
 export async function checkCookie() {
-  const response = await fetch("http://localhost:3000/auth/cookie", {
+  const response = await fetch(import.meta.env.VITE_SERVER_URL + "/auth/cookie", {
     credentials: "include",
   })
     .then((res) => res.json());
@@ -8,7 +8,7 @@ export async function checkCookie() {
 
 export async function signIn(username: string, password: string) {
   const user = { username: username, password: password };
-  const response = await fetch("http://localhost:3000/auth/", {
+  const response = await fetch(import.meta.env.VITE_SERVER_URL + "/auth/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export async function signIn(username: string, password: string) {
 }
 
 export async function signOut() {
-  const response = await fetch("http://localhost:3000/auth/signout", {
+  const response = await fetch(import.meta.env.VITE_SERVER_URL + "/auth/signout", {
     credentials: "include",
   }).then((res) => res.json());
   return response;
