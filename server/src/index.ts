@@ -9,6 +9,7 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     allowMethods: ["POST", "GET"],
+    allowHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept"],
     credentials: true,
   }),
 );
