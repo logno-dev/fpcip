@@ -7,7 +7,7 @@ const app = new Hono();
 app.use(
   "/*",
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.COR_ORIGIN || "http://localhost:5173",
     allowMethods: ["POST", "GET"],
     credentials: true,
   }),

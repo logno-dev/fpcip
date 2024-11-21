@@ -4,6 +4,7 @@ services:
       - MY_SECRET=${MY_SECRET}
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - CORS_ORIGIN=${CORS_ORIGIN}
     build: .
     ports:
       - "3000:3000"
