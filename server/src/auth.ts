@@ -60,8 +60,12 @@ export const checkCookie = async (c: Context) => {
   };
 
   if (cookie) {
+    const createTable =
+      `CREATE TABELE IF NOT EXIST sessions(id INTEGER PRIMARY KEY, sessionId TEXT NOT NULL, user TEXT NOT NULL, expires TEXT NOT NULL);`;
     try {
       db = new Database("db.sqlite", { strict: true });
+      db.exec(createTable);
+
       const expireCheck = db.prepare(
         `delete from sessions where date(expires) < date('now');`,
       );
@@ -69,7 +73,7 @@ export const checkCookie = async (c: Context) => {
       const query = db.prepare(
         `select * from sessions where sessionId = :session;`,
       );
-      session = <Session>query.get({ session: cookie.sessionId });
+      session = <Session> query.get({ session: cookie.sessionId });
     } catch (error) {
       console.log(error);
     } finally {
@@ -98,5 +102,5 @@ export const signOut = async (c: Context) => {
     if (db) db.close();
   }
   deleteCookie(c, "sessionId");
-  return c.json(<Session>{ isAuthenticated: false, user: null });
+  return c.json(<Session> { isAuthenticated: false, user: null });
 };
