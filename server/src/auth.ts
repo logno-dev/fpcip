@@ -1,6 +1,6 @@
 import { deleteCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 import { randomUUID } from "crypto";
-import { Database } from "bun:sqlite";
+import { turso } from "./client.ts";
 import type { Context } from "../node_modules/hono/dist/types/context.d.ts";
 
 type Session = {
@@ -17,8 +17,6 @@ const users = [
   },
 ];
 
-let db: Database;
-
 export const authenticate = async (c: Context) => {
   const user = await c.req.json();
 
@@ -29,15 +27,13 @@ export const authenticate = async (c: Context) => {
     const expiry = new Date(new Date().setDate(new Date().getDate() + 30));
     const userName = user.username;
     try {
-      db = new Database("db.sqlite", { strict: true });
-      const query = db.prepare(
-        `INSERT INTO sessions(sessionId, user, expires) VALUES(:sessionId,:userName,:expiry);`,
-      );
-      query.run({ sessionId, userName, expiry: expiry.toISOString() });
+      await turso.execute({
+        sql:
+          `INSERT INTO sessions(sessionId, user, expires) VALUES(:sessionId,:userName,:expiry);`,
+        args: { sessionId, userName, expiry: expiry.toISOString() },
+      });
     } catch (error) {
       console.log(error);
-    } finally {
-      if (db) db.close();
     }
     await setSignedCookie(c, "sessionId", sessionId, secret, {
       expires: expiry,
@@ -59,31 +55,22 @@ export const checkCookie = async (c: Context) => {
     user: null,
   };
 
-  const createTable =
-    `CREATE TABLE IF NOT EXISTS sessions(id INTEGER PRIMARY KEY, sessionId TEXT NOT NULL, user TEXT NOT NULL, expires TEXT NOT NULL);`;
-  db = new Database("db.sqlite", { strict: true });
-  db.run(createTable);
-
   if (cookie) {
     try {
-      const expireCheck = db.prepare(
+      await turso.execute(
         `delete from sessions where date(expires) < date('now');`,
       );
-      expireCheck.run();
-      const query = db.prepare(
-        `select * from sessions where sessionId = :session;`,
-      );
-      session = <Session>query.get({ session: cookie.sessionId });
+      session = await turso.execute({
+        sql: `select * from sessions where sessionId = :session;`,
+        args: { session: cookie.sessionId },
+      });
     } catch (error) {
       console.log(error);
-    } finally {
-      if (db) db.close();
     }
   }
   if (session && session.user !== null) {
     return c.json({ isAuthenticated: true, user: session.user });
   } else {
-    db.close();
     return c.json({ isAuthenticated: false, user: null });
   }
 };
@@ -92,15 +79,12 @@ export const signOut = async (c: Context) => {
   const cookie = await getSignedCookie(c, secret);
   const sessionId = cookie.sessionId;
   try {
-    db = new Database("db.sqlite", { strict: true });
-    const query = db.prepare(
-      `delete from sessions where sessionId = :sessionId`,
-    );
-    query.run({ sessionId });
+    await turso.execute({
+      sql: `delete from sessions where sessionId = :sessionId`,
+      args: { sessionId },
+    });
   } catch (error) {
     console.log(error);
-  } finally {
-    if (db) db.close();
   }
   deleteCookie(c, "sessionId");
   return c.json(<Session>{ isAuthenticated: false, user: null });
