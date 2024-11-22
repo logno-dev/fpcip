@@ -59,13 +59,13 @@ export const checkCookie = async (c: Context) => {
     user: null,
   };
 
-  if (cookie) {
-    const createTable =
-      `CREATE TABELE IF NOT EXIST sessions(id INTEGER PRIMARY KEY, sessionId TEXT NOT NULL, user TEXT NOT NULL, expires TEXT NOT NULL);`;
-    try {
-      db = new Database("db.sqlite", { strict: true });
-      db.exec(createTable);
+  const createTable =
+    `CREATE TABLE IF NOT EXISTS sessions(id INTEGER PRIMARY KEY, sessionId TEXT NOT NULL, user TEXT NOT NULL, expires TEXT NOT NULL);`;
+  db = new Database("db.sqlite", { strict: true });
+  db.run(createTable);
 
+  if (cookie) {
+    try {
       const expireCheck = db.prepare(
         `delete from sessions where date(expires) < date('now');`,
       );
@@ -73,7 +73,7 @@ export const checkCookie = async (c: Context) => {
       const query = db.prepare(
         `select * from sessions where sessionId = :session;`,
       );
-      session = <Session> query.get({ session: cookie.sessionId });
+      session = <Session>query.get({ session: cookie.sessionId });
     } catch (error) {
       console.log(error);
     } finally {
@@ -83,6 +83,7 @@ export const checkCookie = async (c: Context) => {
   if (session && session.user !== null) {
     return c.json({ isAuthenticated: true, user: session.user });
   } else {
+    db.close();
     return c.json({ isAuthenticated: false, user: null });
   }
 };
@@ -102,5 +103,5 @@ export const signOut = async (c: Context) => {
     if (db) db.close();
   }
   deleteCookie(c, "sessionId");
-  return c.json(<Session> { isAuthenticated: false, user: null });
+  return c.json(<Session>{ isAuthenticated: false, user: null });
 };
