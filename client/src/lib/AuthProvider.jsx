@@ -4,22 +4,27 @@ import { AuthContext } from "./AuthContext.js";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    setIsLoading(true);
     checkCookie().then((data) => {
       setIsAuthenticated(data.isAuthenticated);
       setUser(data.user);
+      setIsLoading(false);
     });
   }, []);
 
   function login(username, password) {
+    setIsLoading(true);
     signIn(username, password)
       .then((data) => {
         setIsAuthenticated(data.isAuthenticated);
         setUser(data.user);
         setMessage(data.message);
+        setIsLoading(false);
       });
   }
 
@@ -33,7 +38,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, message, login, logout }}
+      value={{ isAuthenticated, isLoading, user, message, login, logout }}
     >
       {children}
     </AuthContext.Provider>

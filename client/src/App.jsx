@@ -17,21 +17,15 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, isLoading } = useContext(AuthContext);
 
   return (
     <>
-      {isAuthenticated
-        ? (
-          <>
-            <RouterProvider router={router} />
-          </>
-        )
-        : (
-          <>
-            <Login />
-          </>
-        )}
+      {isLoading ? <h3>Loading...</h3> : (
+        <>
+          {isAuthenticated ? <RouterProvider router={router} /> : <Login />}
+        </>
+      )}
     </>
   );
 }
